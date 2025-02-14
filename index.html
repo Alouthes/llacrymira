@@ -1,602 +1,805 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lacrymira.com</title>
-  <style>
-    :root {
-      --header-height: 43px;
-      --transition-speed: 0.25s;
-      --primary-color: #D8BFD8;
-      --bg-color: rgba(248,248,248,0.98);
-    }
-    *::-webkit-scrollbar { display: none; }
-    * { scrollbar-width: none; outline: none; }
-    body {
-      margin: 0;
-      padding: 0;
-      padding-top: var(--header-height);
-      background: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .lacrymira-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      padding: 4px 12px;
-      height: var(--header-height);
-      background: var(--bg-color);
-      border-bottom: 0.5px solid rgba(0,0,0,0.15);
-    }
-    .lacrymira-header-left {
-      display: flex;
-      align-items: center;
-      flex-shrink: 1;
-      overflow: hidden;
-    }
-    .lacrymira-header img {
-      width: 30px;
-      height: 30px;
-      margin-right: 8px;
-      border: 2px solid #ddd;
-      box-shadow: 0 0 4px rgba(0,0,0,0.1);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .lacrymira-header-text {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      overflow: hidden;
-    }
-    .lacrymira-header-title {
-      display: flex;
-      align-items: center;
-      min-width: 0;
-    }
-    .lacrymira-header-title-prefix,
-    .lacrymira-header-title-main {
-      font-size: 13px;
-      font-weight: 700;
-      color: #222;
-      line-height: 15px;
-      white-space: nowrap;
-    }
-    .lacrymira-header-title-main {
-      flex-grow: 1;
-      flex-shrink: 1;
-      min-width: 24px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .lacrymira-header-subtitle {
-      display: flex;
-      align-items: center;
-      min-width: 0;
-    }
-    .lacrymira-header-subtitle-prefix,
-    .lacrymira-header-subtitle-main {
-      font-size: 11px;
-      color: #666;
-      line-height: 13px;
-      white-space: nowrap;
-    }
-    .lacrymira-arrow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      cursor: pointer;
-      user-select: none;
-      margin: 0 2px;
-      font-size: 16px;
-      color: var(--primary-color);
-      transition: opacity var(--transition-speed) ease;
-      opacity: 1;
-      margin-bottom: -11px;
-    }
-    .lacrymira-arrow-left { margin-right: 0; }
-    .lacrymira-arrow-right { margin-left: 0; }
-    .lacrymira-nav {
-      position: relative;
-      overflow-x: auto;
-      overflow-y: hidden;
-      touch-action: pan-x;
-      white-space: nowrap;
-      flex-grow: 1;
-      flex-shrink: 8;
-      min-width: 60px;
-      font-weight: 700;
-      background: none;
-      padding: 0;
-      margin-bottom: -11px;
-      z-index: 20;
-    }
-    .lacrymira-nav-container {
-      position: relative;
-      display: inline-block;
-    }
-    .lacrymira-nav ul {
-      display: flex;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      transition: margin 0.25s ease;
-    }
-    .lacrymira-nav-item {
-      margin: 0 10px;
-      padding: 0;
-      font-size: 12px;
-      color: #404040;
-      cursor: pointer;
-      margin-bottom: 4.5px;
-      transition: color var(--transition-speed) ease;
-      position: relative;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .lacrymira-nav-item.active,
-    .lacrymira-nav-item:hover,
-    .lacrymira-nav-item:focus {
-      color: #404040;
-    }
-    .blue-slider {
-      position: absolute;
-      bottom: -3px;
-      height: 6px;
-      background: var(--primary-color);
-      transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
-      z-index: 21;
-    }
-    .lacrymira-header-btn {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 4px 14px;
-      border-radius: 20px;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: bold;
-      height: 20px;
-      line-height: 16px;
-      display: flex;
-      align-items: center;
-      box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-      flex-shrink: 0;
-      margin-left: 12px;
-      transition: background-color var(--transition-speed) ease;
-    }
-    .lacrymira-header-btn:hover,
-    .lacrymira-header-btn:focus {
-      background-color: #c0a9c0;
-    }
-    .lacrymira-editor {
-      position: fixed;
-      top: var(--header-height);
-      left: 0;
-      right: 0;
-      height: 35px;
-      background: var(--bg-color);
-      border-bottom: 0.5px solid rgba(0,0,0,0.15);
-      backdrop-filter: blur(10px);
-      overflow: hidden;
-      transform: translateY(-100%);
-      transition: transform 0.2s ease-out;
-      z-index: 5;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .lacrymira-editor.open {
-      transform: translateY(0);
-    }
-    .lacrymira-highlight {
-      position: absolute;
-      top: 22px;
-      left: 0;
-      height: 20px;
-      background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      border-radius: 16px;
-      box-sizing: border-box;
-      transform: translateY(-50%);
-      z-index: 0;
-      transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
-    }
-    .lacrymira-slider {
-      position: absolute;
-      top: 22px;
-      left: 0;
-      height: 20px;
-      background-color: var(--primary-color);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      border-radius: 16px;
-      box-sizing: border-box;
-      transform: translateY(-50%);
-      z-index: 0.5;
-      transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
-    }
-    .lacrymira-pages {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      position: relative;
-      white-space: nowrap;
-      top: 9px;
-    }
-    .lacrymira-pages::-webkit-scrollbar { display: none; }
-    .lacrymira-page {
-      flex: none;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      scroll-snap-align: start;
-    }
-    .lacrymira-editor button {
-      background: none;
-      border: none;
-      padding: 0px 15px;
-      font-size: 12px;
-      height: 25px;
-      color: #404040;
-      cursor: pointer;
-      position: relative;
-      line-height: 25px;
-      z-index: 4;
-      -webkit-tap-highlight-color: transparent;
-      transition: color var(--transition-speed) ease;
-    }
-    .lacrymira-editor button:hover,
-    .lacrymira-editor button:focus {
-      color: #5D4037;
-    }
-    .lacrymira-editor button:active,
-    .lacrymira-editor button.selected {
-      color: #5D4037;
-    }
-    .lacrymira-mask {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      background-color: var(--bg-color);
-      z-index: 6;
-      transition: width var(--transition-speed) ease;
-    }
-    .lacrymira-mask-left { left: 0; }
-    .lacrymira-mask-right { right: 1px; }
-    #content-display {
-      margin-top: 70px;
-      padding: 20px;
-      background: #fff;
-      min-height: calc(100vh - 70px);
-    }
-  </style>
-</head>
-<body>
-  <div class="lacrymira-header">
-    <div class="lacrymira-header-left">
-      <img src="https://res.cloudinary.com/dfpnqmy7d/image/upload/f_auto,q_auto/jlvni3dcsnvopqn00nxo" alt="Logo">
-      <div class="lacrymira-header-text">
-        <div class="lacrymira-header-title">
-          <span class="lacrymira-header-title-prefix">淺風 –&nbsp</span>
-          <span class="lacrymira-header-title-main">吃枕頭中</span>
-        </div>
-        <div class="lacrymira-header-subtitle">
-          <span class="lacrymira-header-subtitle-prefix">Lacrymira</span>
-          <span class="lacrymira-header-subtitle-main"></span>
-        </div>
-      </div>
-    </div>
-    <div class="lacrymira-arrow lacrymira-arrow-left"><span>◀</span></div>
-    <div class="lacrymira-nav">
-      <div class="lacrymira-nav-container">
-        <ul>
-          <li class="lacrymira-nav-item" data-page="1" tabindex="0">第一頁</li>
-          <li class="lacrymira-nav-item" data-page="2" tabindex="0">第二頁</li>
-          <li class="lacrymira-nav-item" data-page="3" tabindex="0">第三頁</li>
-        </ul>
-        <div class="blue-slider"></div>
-      </div>
-    </div>
-    <div class="lacrymira-arrow lacrymira-arrow-right"><span>▶</span></div>
-    <a href="#" class="lacrymira-header-btn"> @ </a>
-  </div>
-  <div class="lacrymira-editor">
-    <div class="lacrymira-highlight"></div>
-    <div class="lacrymira-slider"></div>
-    <div class="lacrymira-pages">
-      <div class="lacrymira-page" data-page="1">
-        <button tabindex="0">歡迎光臨~</button>
-        <button tabindex="0">w</button>
-        <button tabindex="0">w</button>
-        <button tabindex="0">w</button>
-      </div>
-      <div class="lacrymira-page" data-page="2">
-        <button tabindex="0">w?</button>
-        <button tabindex="0">w</button>
-        <button tabindex="0">w</button>
-        <button tabindex="0">w!</button>
-      </div>
-      <div class="lacrymira-page" data-page="3">
-        <button tabindex="0">w</button>
-        <button tabindex="0">網站構建中</button>
-        <button tabindex="0">w</button>
-      </div>
-    </div>
-    <div class="lacrymira-mask lacrymira-mask-left"></div>
-    <div class="lacrymira-mask lacrymira-mask-right"></div>
-  </div>
-  <div id="content-display">
-  </div>
-  <script>
-    const pages = document.querySelector('.lacrymira-pages');
-    const maskLeft = document.querySelector('.lacrymira-mask-left');
-    const maskRight = document.querySelector('.lacrymira-mask-right');
-    const editor = document.querySelector('.lacrymira-editor');
-    let activePage = null;
-    let clickScrolling = false;
-    let centerTimeout;
-    
-    function updateHighlightBar() {
-      const scrollLeft = pages.scrollLeft;
-      const pageWidth = pages.clientWidth;
-      const pagesArray = document.querySelectorAll('.lacrymira-page');
-      const totalPages = pagesArray.length;
-      const currentPageIndex = Math.floor(scrollLeft / pageWidth);
-      const nextPageIndex = Math.min(currentPageIndex + 1, totalPages - 1);
-      const currentPage = pagesArray[currentPageIndex];
-      const nextPage = pagesArray[nextPageIndex];
-      if (currentPage && nextPage) {
-        const currentButtons = currentPage.querySelectorAll('button');
-        const nextButtons = nextPage.querySelectorAll('button');
-        let totalCurrentWidth = 0;
-        currentButtons.forEach(button => { totalCurrentWidth += button.getBoundingClientRect().width; });
-        let totalNextWidth = 0;
-        nextButtons.forEach(button => { totalNextWidth += button.getBoundingClientRect().width; });
-        const interpolation = (scrollLeft % pageWidth) / pageWidth;
-        const interpolatedWidth = totalCurrentWidth + (totalNextWidth - totalCurrentWidth) * interpolation;
-        document.querySelector('.lacrymira-highlight').style.width = `${interpolatedWidth}px`;
-        const firstCurrentButton = currentButtons[0];
-        const firstNextButton = nextButtons[0];
-        const pagesRect = pages.getBoundingClientRect();
-        const currentButtonLeft = firstCurrentButton.getBoundingClientRect().left - pagesRect.left;
-        const nextButtonLeft = firstNextButton.getBoundingClientRect().left - pagesRect.left;
-        const interpolatedLeft = currentButtonLeft + (nextButtonLeft - currentButtonLeft) * interpolation;
-        document.querySelector('.lacrymira-highlight').style.left = `${interpolatedLeft}px`;
-        const containerWidth = editor.clientWidth;
-        const leftMaskWidth = interpolatedLeft;
-        const rightMaskWidth = Math.max(0, containerWidth - (interpolatedLeft + interpolatedWidth));
-        maskLeft.style.width = `${leftMaskWidth}px`;
-        maskRight.style.width = `${rightMaskWidth}px`;
+  <head>
+    <!-- 設定字符集為 UTF-8，支援多種語言 -->
+    <meta charset="UTF-8">
+    <!-- 設定viewport，確保響應式設計在各種裝置上正常顯示 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 設定網頁標題 -->
+    <title>Lacrymira.com</title>
+    <!-- 網頁內嵌 CSS 樣式 -->
+    <style>
+      /* 定義全局CSS變數，方便統一管理設計風格 */
+      :root {
+        --header-height: 40px;             /* 頂部導航欄的高度 */
+        --transition-speed: 0.25s;          /* 各種動畫的過渡時間 */
+        --primary-color: #D8BFD8;           /* 主色調，淡紫色 */
+        --bg-color: rgba(248,248,248,0.98);  /* 背景色，接近白色帶點透明 */
       }
-    }
-    
-    const navItems = document.querySelectorAll('.lacrymira-nav-item');
-    navItems.forEach(item => {
-      item.addEventListener('click', function() {
-        const page = this.getAttribute('data-page');
-        clickScrolling = true;
-        if (!editor.classList.contains('open')) {
-          editor.classList.add('open');
-          activePage = page;
-          updateActiveNav();
-          scrollToPage(page);
-        } else {
-          if (activePage === page) {
-            editor.classList.remove('open');
-            activePage = null;
-            updateActiveNav();
-          } else {
-            activePage = page;
-            updateActiveNav();
-            scrollToPage(page);
-          }
+
+      /* 隱藏所有元素的 Webkit 滾動條（Chrome、Safari等） */
+      *::-webkit-scrollbar {
+        display: none;
+      }
+      /* Firefox 隱藏滾動條並移除 outline */
+      * {
+        scrollbar-width: none;
+        outline: none;
+      }
+
+      /* body 基本樣式設定 */
+      body {
+        margin: 0;
+        padding: 0;
+        padding-top: var(--header-height); /* 預留空間給固定頂部導航欄 */
+        background: #fff;
+        /* 使用系統字體及通用字體列表，確保跨平台字體一致性 */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      /* 頂部導航欄樣式 */
+      .lacrymira-header {
+        position: fixed;       /* 固定定位，始終顯示在頁面頂部 */
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;           /* 層級設置，確保覆蓋其他內容 */
+        display: flex;         /* 使用flex佈局，便於水平排列子元素 */
+        align-items: center;   /* 垂直置中 */
+        padding: 9px 17px;     /* 內邊距 */
+        height: var(--header-height); /* 使用變數設定高度 */
+        background: var(--bg-color);   /* 使用背景色變數 */
+        border-bottom: 0.5px solid rgba(0,0,0,0.15); /* 底部邊框作為分隔線 */
+      }
+
+      /* 頂部導航欄左側區塊：包含Logo和文字 */
+      .lacrymira-header-left {
+        display: flex;
+        align-items: center;
+        flex-shrink: 1; /* 允許收縮 */
+        overflow: hidden; /* 溢出部分隱藏 */
+      }
+
+      /* Logo圖片樣式 */
+      .lacrymira-header img {
+        width: 35px;
+        height: 35px;
+        margin-right: 8px; /* 右側間距 */
+        border: 2px solid #ddd;
+        box-shadow: 0 0 4px rgba(0,0,0,0.1);
+        border-radius: 50%; /* 圓形圖片 */
+        flex-shrink: 0;   /* 防止縮小 */
+      }
+
+      /* 頭部文字區塊，包含標題和副標題 */
+      .lacrymira-header-text {
+        display: flex;
+        flex-direction: column; /* 垂直排列 */
+        min-width: 0;
+        overflow: hidden;       /* 超出部分隱藏 */
+      }
+
+      /* 標題區塊：標題與標題前綴 */
+      .lacrymira-header-title {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+      }
+      .lacrymira-header-title-prefix,
+      .lacrymira-header-title-main {
+        font-size: 13px;
+        font-weight: 700;
+        color: #222;
+        line-height: 15px;
+        white-space: nowrap;  /* 防止文字換行 */
+      }
+      /* 主標題：允許伸縮並使用省略號處理超出部分 */
+      .lacrymira-header-title-main {
+        flex-grow: 1;
+        flex-shrink: 1;
+        min-width: 24px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* 副標題區塊樣式 */
+      .lacrymira-header-subtitle {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+      }
+      .lacrymira-header-subtitle-prefix,
+      .lacrymira-header-subtitle-main {
+        font-size: 11px;
+        color: #666;
+        line-height: 13px;
+        white-space: nowrap;
+      }
+
+      /* 左右箭頭按鈕樣式 */
+      .lacrymira-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        cursor: pointer;                /* 鼠標懸停顯示點擊效果 */
+        user-select: none;              /* 禁止文字選取 */
+        margin: 0 2px;
+        font-size: 16px;
+        color: var(--primary-color);
+        transition: opacity var(--transition-speed) ease; /* 透明度過渡動畫 */
+        opacity: 1;
+        margin-bottom: -11px;           /* 微調位置 */
+      }
+      /* 分別調整左右箭頭的左右邊距 */
+      .lacrymira-arrow-left { margin-right: 0; }
+      .lacrymira-arrow-right { margin-left: 0; }
+
+      /* 導航欄：包含多頁導航按鈕 */
+      .lacrymira-nav {
+        position: relative;
+        overflow-x: auto;    /* 支援橫向滾動 */
+        overflow-y: hidden;  /* 垂直溢出隱藏 */
+        touch-action: pan-x; /* 優化觸控操作 */
+        white-space: nowrap; /* 防止換行 */
+        flex-grow: 1;
+        flex-shrink: 8;
+        min-width: 60px;
+        font-weight: 700;
+        background: none;
+        padding: 0;
+        margin-bottom: -11px; /* 與箭頭對齊 */
+        z-index: 20;         /* 層級高於header其他部分 */
+      }
+      /* 導航容器：包裹<ul>列表，便於定位藍色滑動條 */
+      .lacrymira-nav-container {
+        position: relative;
+        display: inline-block;
+      }
+      /* <ul>列表樣式：使用flex排列導航項 */
+      .lacrymira-nav ul {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        list-style: none;    /* 移除列表標記 */
+        transition: margin 0.25s ease; /* 過渡動畫 */
+      }
+      /* 單個導航項目樣式 */
+      .lacrymira-nav-item {
+        margin: 0 10px;
+        padding: 0;
+        font-size: 12px;
+        color: #404040;
+        cursor: pointer;
+        margin-bottom: 4.5px;
+        transition: color var(--transition-speed) ease;
+        position: relative;
+        user-select: none; /* 禁止文字選取 */
+        -webkit-tap-highlight-color: transparent; /* 觸控高亮透明 */
+      }
+      /* 滑鼠懸停、焦點與active狀態時的顏色變化 */
+      .lacrymira-nav-item.active,
+      .lacrymira-nav-item:hover,
+      .lacrymira-nav-item:focus {
+        color: #404040;
+      }
+      /* 藍色滑動條：導航下方顯示當前選中項目 */
+      .blue-slider {
+        position: absolute;
+        bottom: -3px;
+        height: 6px;
+        background: var(--primary-color);
+        transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+        z-index: 21; /* 高於導航項 */
+      }
+
+      /* 頂部按鈕樣式（例如“@”按鈕） */
+      .lacrymira-header-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 4px 14px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: bold;
+        height: 20px;
+        line-height: 16px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+        margin-left: 12px;
+        transition: background-color var(--transition-speed) ease;
+      }
+      /* 按鈕懸停和聚焦時改變背景色 */
+      .lacrymira-header-btn:hover,
+      .lacrymira-header-btn:focus {
+        background-color: #c0a9c0;
+      }
+
+      /* lacrymira-editor：下方的按鈕編輯器區塊 */
+      .lacrymira-editor {
+        position: fixed;
+        top: var(--header-height); /* 緊貼導航欄下方 */
+        left: 0;
+        right: 0;
+        height: 35px;
+        background: var(--bg-color);
+        border-bottom: 0.5px solid rgba(0,0,0,0.15);
+        backdrop-filter: blur(10px); /* 模糊背景效果 */
+        overflow: hidden;
+        transform: translateY(-100%); /* 初始隱藏編輯器區 */
+        transition: transform 0.2s ease-out;
+        z-index: 5;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      /* 當編輯器開啟時，顯示編輯器 */
+      .lacrymira-editor.open {
+        transform: translateY(0);
+      }
+
+      /* 高亮背景：用於按鈕區域高亮顯示 */
+      .lacrymira-highlight {
+        position: absolute;
+        top: 22px;
+        left: 0;
+        height: 20px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        border-radius: 16px;
+        box-sizing: border-box;
+        transform: translateY(-50%);
+        z-index: 0;
+        transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+      }
+      /* 按鈕下方滑動條：顯示選中狀態 */
+      .lacrymira-slider {
+        position: absolute;
+        top: 22px;
+        left: 0;
+        height: 20px;
+        background-color: var(--primary-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        border-radius: 16px;
+        box-sizing: border-box;
+        transform: translateY(-50%);
+        z-index: 0.5;
+        transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+      }
+
+      /* lacrymira-pages：存放不同頁面按鈕的容器 */
+      .lacrymira-pages {
+        display: flex;
+        overflow-x: auto; /* 支援橫向滾動 */
+        scroll-snap-type: x mandatory; /* 滾動吸附效果 */
+        -webkit-overflow-scrolling: touch; /* 提升iOS觸控體驗 */
+        position: relative;
+        white-space: nowrap; /* 防止子元素換行 */
+        top: 9px; /* 垂直偏移調整 */
+      }
+      /* 隱藏滾動條（Webkit瀏覽器） */
+      .lacrymira-pages::-webkit-scrollbar {
+        display: none;
+      }
+      /* 每一個頁面按鈕區塊 */
+      .lacrymira-page {
+        flex: none;
+        width: 100vw; /* 每個頁面占滿整個視窗寬度 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start; /* 吸附到頁面開始位置 */
+      }
+
+      /* lacrymira-editor 中按鈕樣式 */
+      .lacrymira-editor button {
+        background: none;
+        border: none;
+        padding: 0px 15px;
+        font-size: 12px;
+        height: 25px;
+        color: #404040;
+        cursor: pointer;
+        position: relative;
+        line-height: 25px;
+        z-index: 4;
+        -webkit-tap-highlight-color: transparent;
+        transition: color var(--transition-speed) ease;
+      }
+      /* 按鈕懸停、聚焦和按下狀態的顏色變化 */
+      .lacrymira-editor button:hover,
+      .lacrymira-editor button:focus {
+        color: #5D4037;
+      }
+      .lacrymira-editor button:active,
+      .lacrymira-editor button.selected {
+        color: #5D4037;
+      }
+
+      /* 遮罩層：用於遮住滾動時未顯示完全的部分 */
+      .lacrymira-mask {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        background-color: var(--bg-color);
+        z-index: 6;
+        transition: width var(--transition-speed) ease;
+      }
+      /* 左側遮罩 */
+      .lacrymira-mask-left { left: 0; }
+      /* 右側遮罩 */
+      .lacrymira-mask-right { right: 1px; }
+
+      /* 內容展示區：頁面下方用於展示按鈕點擊後對應內容 */
+      #content-display {
+        margin-top: 70px;
+        padding: 20px;
+        background: #fff;
+        min-height: calc(100vh - 70px); /* 確保至少填滿剩餘高度 */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 頂部導航欄 -->
+    <div class="lacrymira-header">
+      <!-- 導航左側：Logo 與文字 -->
+      <div class="lacrymira-header-left">
+        <!-- Logo圖片 -->
+        <img src="https://res.cloudinary.com/dfpnqmy7d/image/upload/f_auto,q_auto/jlvni3dcsnvopqn00nxo" alt="Logo">
+        <!-- 文字部分：包含主標題與副標題 -->
+        <div class="lacrymira-header-text">
+          <div class="lacrymira-header-title">
+            <span class="lacrymira-header-title-prefix">淺風 –&nbsp</span>
+            <span class="lacrymira-header-title-main">吃枕頭中</span>
+          </div>
+          <div class="lacrymira-header-subtitle">
+            <span class="lacrymira-header-subtitle-prefix">Lacrymira</span>
+            <span class="lacrymira-header-subtitle-main"></span>
+          </div>
+        </div>
+      </div>
+      <!-- 左箭頭按鈕 -->
+      <div class="lacrymira-arrow lacrymira-arrow-left">
+        <span>◀</span>
+      </div>
+      <!-- 中間的多頁導航區 -->
+      <div class="lacrymira-nav">
+        <div class="lacrymira-nav-container">
+          <ul>
+            <!-- 每個<li>對應一個頁面，透過 data-page 屬性標識 -->
+            <li class="lacrymira-nav-item" data-page="1" tabindex="0">第一頁</li>
+            <li class="lacrymira-nav-item" data-page="2" tabindex="0">第二頁</li>
+            <li class="lacrymira-nav-item" data-page="3" tabindex="0">第三頁</li>
+          </ul>
+          <!-- 藍色滑動條：顯示當前選中頁面的下劃線效果 -->
+          <div class="blue-slider"></div>
+        </div>
+      </div>
+      <!-- 右箭頭按鈕 -->
+      <div class="lacrymira-arrow lacrymira-arrow-right">
+        <span>▶</span>
+      </div>
+      <!-- 頂部右側按鈕（示例按鈕，內容為 @） -->
+      <a href="#" class="lacrymira-header-btn"> @ </a>
+    </div>
+
+    <!-- lacrymira-editor：按鈕編輯器區 -->
+    <div class="lacrymira-editor">
+      <!-- 高亮背景：用於指示當前狀態，背景白色 -->
+      <div class="lacrymira-highlight"></div>
+      <!-- 藍色滑動條：按鈕下方顯示當前選中狀態 -->
+      <div class="lacrymira-slider"></div>
+      <!-- 多頁容器，包含不同頁面上的按鈕 -->
+      <div class="lacrymira-pages">
+        <!-- 第一頁 -->
+        <div class="lacrymira-page" data-page="1">
+          <button tabindex="0">歡迎光臨~</button>
+          <button tabindex="0">w</button>
+          <button tabindex="0">w</button>
+          <button tabindex="0">w</button>
+        </div>
+        <!-- 第二頁 -->
+        <div class="lacrymira-page" data-page="2">
+          <button tabindex="0">w?</button>
+          <button tabindex="0">w</button>
+          <button tabindex="0">w</button>
+          <button tabindex="0">w!</button>
+        </div>
+        <!-- 第三頁 -->
+        <div class="lacrymira-page" data-page="3">
+          <button tabindex="0">w</button>
+          <button tabindex="0">網站構建中</button>
+          <button tabindex="0">w</button>
+        </div>
+      </div>
+      <!-- 左右遮罩，用於遮擋滾動區域未顯示部分 -->
+      <div class="lacrymira-mask lacrymira-mask-left"></div>
+      <div class="lacrymira-mask lacrymira-mask-right"></div>
+    </div>
+
+    <!-- 內容展示區：根據按鈕點擊顯示相應內容 -->
+    <div id="content-display">
+    </div>
+
+    <!-- JavaScript交互邏輯 -->
+    <script>
+      // 取得頁面中主要的 DOM 元素
+      const pages = document.querySelector('.lacrymira-pages');               // 多頁容器
+      const maskLeft = document.querySelector('.lacrymira-mask-left');          // 左側遮罩
+      const maskRight = document.querySelector('.lacrymira-mask-right');        // 右側遮罩
+      const editor = document.querySelector('.lacrymira-editor');               // 按鈕編輯器區
+      let activePage = null;       // 當前激活的頁面，初始為 null
+      let clickScrolling = false;  // 標記點擊導航後是否正在滾動
+      let centerTimeout;           // 用於控制中心定位的計時器
+
+      /**
+       * 更新高亮條位置與寬度
+       * 根據 pages 的 scrollLeft 計算當前頁面與下一頁之間的插值，從而動態調整高亮條位置與寬度
+       */
+      function updateHighlightBar() {
+        const scrollLeft = pages.scrollLeft;
+        const pageWidth = pages.clientWidth;
+        // 取得所有頁面按鈕區塊
+        const pagesArray = document.querySelectorAll('.lacrymira-page');
+        const totalPages = pagesArray.length;
+        // 當前頁面索引：根據scrollLeft和頁面寬度計算
+        const currentPageIndex = Math.floor(scrollLeft / pageWidth);
+        // 下一頁索引（防止超出範圍）
+        const nextPageIndex = Math.min(currentPageIndex + 1, totalPages - 1);
+        const currentPage = pagesArray[currentPageIndex];
+        const nextPage = pagesArray[nextPageIndex];
+        if (currentPage && nextPage) {
+          // 取得當前頁面所有按鈕，並計算總寬度
+          const currentButtons = currentPage.querySelectorAll('button');
+          const nextButtons = nextPage.querySelectorAll('button');
+          let totalCurrentWidth = 0;
+          currentButtons.forEach(button => { 
+            totalCurrentWidth += button.getBoundingClientRect().width; 
+          });
+          let totalNextWidth = 0;
+          nextButtons.forEach(button => { 
+            totalNextWidth += button.getBoundingClientRect().width; 
+          });
+          // 計算插值，根據滾動進度決定兩個頁面的過渡狀態
+          const interpolation = (scrollLeft % pageWidth) / pageWidth;
+          // 插值計算後的寬度
+          const interpolatedWidth = totalCurrentWidth + (totalNextWidth - totalCurrentWidth) * interpolation;
+          document.querySelector('.lacrymira-highlight').style.width = `${interpolatedWidth}px`;
+
+          // 取得每個頁面第一個按鈕的位置，作為高亮起始點參考
+          const firstCurrentButton = currentButtons[0];
+          const firstNextButton = nextButtons[0];
+          const pagesRect = pages.getBoundingClientRect();
+          const currentButtonLeft = firstCurrentButton.getBoundingClientRect().left - pagesRect.left;
+          const nextButtonLeft = firstNextButton.getBoundingClientRect().left - pagesRect.left;
+          // 插值計算後的左邊距
+          const interpolatedLeft = currentButtonLeft + (nextButtonLeft - currentButtonLeft) * interpolation;
+          document.querySelector('.lacrymira-highlight').style.left = `${interpolatedLeft}px`;
+
+          // 根據高亮條位置與寬度調整遮罩層寬度，達到遮擋未選中部分的效果
+          const containerWidth = editor.clientWidth;
+          const leftMaskWidth = interpolatedLeft;
+          const rightMaskWidth = Math.max(0, containerWidth - (interpolatedLeft + interpolatedWidth));
+          maskLeft.style.width = `${leftMaskWidth}px`;
+          maskRight.style.width = `${rightMaskWidth}px`;
         }
-        setTimeout(() => { clickScrolling = false; }, 1000);
-        setTimeout(updateHighlightBar, 700);
-      });
-      item.addEventListener('keydown', e => { if (e.key === 'Enter') item.click(); });
-    });
-    
-    function updateActiveNav() {
+      }
+
+      // 取得所有導航項目，並為它們添加點擊和鍵盤操作事件
+      const navItems = document.querySelectorAll('.lacrymira-nav-item');
       navItems.forEach(item => {
-        if (item.getAttribute('data-page') === activePage) { 
-          item.classList.add('active'); 
+        // 點擊事件：打開/切換編輯器及滾動到指定頁面
+        item.addEventListener('click', function() {
+          const page = this.getAttribute('data-page'); // 取得點擊項目所代表的頁碼
+          clickScrolling = true; // 標記目前正在進行點擊滾動
+
+          // 檢查編輯器是否已經展開
+          if (!editor.classList.contains('open')) {
+            // 如果未打開，則添加open類以展開編輯器
+            editor.classList.add('open');
+            activePage = page; // 設定激活頁面
+            updateActiveNav(); // 更新導航項目的激活狀態
+            scrollToPage(page); // 滾動至對應頁面
+          } else {
+            // 如果已打開
+            if (activePage === page) {
+              // 點擊相同頁面時，關閉編輯器
+              editor.classList.remove('open');
+              activePage = null;
+              updateActiveNav();
+            } else {
+              // 點擊不同頁面則切換激活頁面並滾動
+              activePage = page;
+              updateActiveNav();
+              scrollToPage(page);
+            }
+          }
+          // 設置定時器，在1秒後結束點擊滾動標記
+          setTimeout(() => { clickScrolling = false; }, 1000);
+          // 延遲更新高亮條位置（與滾動動畫同步）
+          setTimeout(updateHighlightBar, 700);
+        });
+        // 支持鍵盤 Enter 按鍵觸發點擊事件
+        item.addEventListener('keydown', e => { if (e.key === 'Enter') item.click(); });
+      });
+
+      /**
+       * 更新導航項目激活狀態
+       * 根據 activePage 變數為相應項目添加或移除 active 樣式，
+       * 同時更新藍色滑動條位置
+       */
+      function updateActiveNav() {
+        navItems.forEach(item => {
+          if (item.getAttribute('data-page') === activePage) { 
+            item.classList.add('active'); 
+          } else { 
+            item.classList.remove('active'); 
+          }
+        });
+        if (clickScrolling) { 
+          // 若正在點擊滾動，延遲300ms更新藍色滑動條，避免動畫衝突
+          setTimeout(updateBlueSlider, 300);
         } else { 
-          item.classList.remove('active'); 
+          updateBlueSlider();
+        }
+      }
+
+      /**
+       * 根據頁碼滾動至對應頁面
+       * 使用 smooth 滾動行為實現動畫效果
+       */
+      function scrollToPage(page) {
+        const pageIndex = parseInt(page, 10) - 1; // 轉換頁碼至索引（從0開始）
+        const pageWidth = pages.clientWidth;
+        pages.scrollTo({ left: pageIndex * pageWidth, behavior: 'smooth' });
+      }
+
+      /**
+       * 根據頁面滾動更新激活的導航項目
+       * 根據 scrollLeft 計算中間位置所在的頁面
+       */
+      function updateActivePageOnScroll() {
+        const scrollLeft = pages.scrollLeft;
+        const pageWidth = pages.clientWidth;
+        // 根據頁面中間點判斷當前頁面
+        const currentIndex = Math.floor((scrollLeft + pageWidth/2) / pageWidth);
+        activePage = (currentIndex + 1).toString(); // 更新 activePage 為字符串格式
+        updateActiveNav(); // 更新導航項目狀態
+      }
+
+      // 當頁面容器滾動時，通過requestAnimationFrame優化動畫效果
+      pages.addEventListener('scroll', () => {
+        requestAnimationFrame(() => {
+          updateHighlightBar();
+          if (editor.classList.contains('open')) {
+            updateActivePageOnScroll();
+            // 如果非點擊滾動，延遲定位激活項目到中央
+            if (!clickScrolling) {
+              clearTimeout(centerTimeout);
+              centerTimeout = setTimeout(centerActivePage, 100);
+            }
+          }
+        });
+      });
+
+      // 加載與窗口尺寸變化時更新高亮條位置
+      window.addEventListener('load', updateHighlightBar);
+      window.addEventListener('resize', updateHighlightBar);
+
+      /**
+       * 更新藍色滑動條的位置與寬度
+       * 根據激活的導航項目在容器中的位置和寬度進行調整
+       */
+      function updateBlueSlider() {
+        const activeItem = document.querySelector('.lacrymira-nav-item.active');
+        const blueSlider = document.querySelector('.blue-slider');
+        const navContainer = document.querySelector('.lacrymira-nav-container');
+        if (activeItem && blueSlider && navContainer) {
+          const itemRect = activeItem.getBoundingClientRect();
+          const containerRect = navContainer.getBoundingClientRect();
+          const extra = 8; // 額外補充寬度，使滑動條略大於按鈕
+          const left = itemRect.left - containerRect.left - extra/2;
+          const width = itemRect.width + extra;
+          blueSlider.style.left = left + 'px';
+          blueSlider.style.width = width + 'px';
+        }
+      }
+
+      // 加載與調整視窗大小時更新藍色滑動條
+      window.addEventListener('load', updateBlueSlider);
+      window.addEventListener('resize', updateBlueSlider);
+
+      /**
+       * 將激活的導航項目置中
+       */
+      function centerActivePage() {
+        const container = document.querySelector('.lacrymira-nav');
+        const activeItem = container.querySelector('.lacrymira-nav-item.active');
+        if (!activeItem) return;
+        const containerCenter = container.clientWidth / 2;
+        const activeCenter = activeItem.offsetLeft + activeItem.offsetWidth / 2;
+        const desiredScrollLeft = activeCenter - containerCenter;
+        container.scrollTo({ left: desiredScrollLeft, behavior: 'smooth' });
+      }
+
+      // 控制按鈕選中與滑動條動畫
+      let currentButton = null;          // 當前激活的按鈕
+      let highlightTransitioning = false; // 標記高亮過渡動畫狀態
+      let queuedBtn = null;              // 暫存等待動畫結束後觸發的按鈕
+
+      // 加載完成後為高亮元素添加過渡事件監聽
+      window.addEventListener('load', () => {
+        const highlight = document.querySelector('.lacrymira-highlight');
+        if (highlight) {
+          // 當過渡開始，標記動畫進行中
+          highlight.addEventListener('transitionstart', () => { 
+            highlightTransitioning = true; 
+          });
+          // 過渡結束後，若有排隊的按鈕則觸發點擊事件
+          highlight.addEventListener('transitionend', () => {
+            highlightTransitioning = false;
+            if (queuedBtn) { 
+              queuedBtn.click(); 
+              queuedBtn = null; 
+            }
+          });
+          // 防止動畫卡住，定時檢查動畫狀態
+          setInterval(() => { 
+            if (highlightTransitioning) { 
+              highlightTransitioning = false; 
+              if (queuedBtn) { 
+                queuedBtn.click(); 
+                queuedBtn = null; 
+              } 
+            }
+          }, 400);
         }
       });
-      if (clickScrolling) { setTimeout(updateBlueSlider, 300); }
-      else { updateBlueSlider(); }
-    }
-    
-    function scrollToPage(page) {
-      const pageIndex = parseInt(page, 10) - 1;
-      const pageWidth = pages.clientWidth;
-      pages.scrollTo({ left: pageIndex * pageWidth, behavior: 'smooth' });
-    }
-    
-    function updateActivePageOnScroll() {
-      const scrollLeft = pages.scrollLeft;
-      const pageWidth = pages.clientWidth;
-      const currentIndex = Math.floor((scrollLeft + pageWidth/2) / pageWidth);
-      activePage = (currentIndex + 1).toString();
-      updateActiveNav();
-    }
-    
-    pages.addEventListener('scroll', () => {
-      requestAnimationFrame(() => {
-        updateHighlightBar();
-        if (editor.classList.contains('open')) {
-          updateActivePageOnScroll();
-          if (!clickScrolling) {
-            clearTimeout(centerTimeout);
-            centerTimeout = setTimeout(centerActivePage, 100);
+
+      // 為 lacrymira-editor 中的所有按鈕添加點擊事件
+      document.querySelectorAll('.lacrymira-editor button').forEach(btn => {
+        btn.addEventListener('click', function() {
+          // 移除所有按鈕的選中樣式，再添加當前按鈕選中樣式
+          document.querySelectorAll('.lacrymira-editor button').forEach(b => b.classList.remove('selected'));
+          this.classList.add('selected');
+          // 如果動畫正在過渡中，將點擊事件排隊等待動畫結束後觸發
+          if (highlightTransitioning) {
+            queuedBtn = this;
+            setTimeout(() => { 
+              if (!highlightTransitioning && queuedBtn) { 
+                queuedBtn.click(); 
+                queuedBtn = null; 
+              } 
+            }, 350);
+            return;
+          }
+          // 更新當前按鈕並移動滑動條到該按鈕位置
+          currentButton = this;
+          moveSliderTo(this);
+          updateContentDisplay(this);
+        });
+        // 支持鍵盤 Enter 按鍵觸發按鈕點擊
+        btn.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+      });
+
+      // 當 pages 容器滾動時，如果有當前按鈕則調整滑動條位置
+      document.querySelector('.lacrymira-pages').addEventListener('scroll', function(){
+        if (currentButton) moveSliderTo(currentButton);
+      });
+
+      // 頁面加載完成後，自動點擊第一個按鈕
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const firstBtn = document.querySelector('.lacrymira-pages button');
+          if (firstBtn) {
+            currentButton = firstBtn;
+            moveSliderTo(firstBtn);
+            updateContentDisplay(firstBtn);
+          }
+        }, 200);
+      });
+
+      /**
+       * 將滑動條移動到指定按鈕的位置，並調整其寬度
+       * @param {HTMLElement} btn - 被點擊的按鈕元素
+       */
+      function moveSliderTo(btn) {
+        const editorElem = document.querySelector('.lacrymira-editor');
+        const slider = document.querySelector('.lacrymira-slider');
+        const editorRect = editorElem.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        const left = btnRect.left - editorRect.left; // 計算按鈕相對編輯器的左邊距
+        const width = btnRect.width;                  // 按鈕寬度
+        slider.style.left = left + 'px';
+        slider.style.width = width + 'px';
+      }
+
+      /**
+       * 根據按鈕的內文更新內容展示區
+       * @param {HTMLElement} btn - 被點擊的按鈕元素
+       */
+      function updateContentDisplay(btn) {
+        const contentArea = document.getElementById('content-display');
+        if (!contentArea) return;
+        let btnText = btn.innerText.trim(); // 取得按鈕文字，並去除前後空白
+        let content = "";
+        // 根據按鈕文字切換展示內容
+        switch(btnText) {
+          case "歡迎光臨~":
+            content = "歡迎來到 Lacrymira！這裡是淺風自己建立的網站";
+            break;
+          case "w":
+            content = "這是按鈕「w」所對應的內容。";
+            break;
+          case "w?":
+            content = "這是按鈕「w?」所對應的內容。";
+            break;
+          case "w!":
+            content = "這是按鈕「w!」所對應的內容。";
+            break;
+          case "網站構建中":
+            content = "網站正在建構中";
+            break;
+          default:
+            content = "你點擊了按鈕：" + btnText;
+            break;
+        }
+        // 將內容放入展示區內
+        contentArea.innerHTML = "<p>" + content + "</p>";
+      }
+
+      /**
+       * 調整導航欄，確保內容居中顯示
+       */
+      function adjustNav() {
+        const nav = document.querySelector('.lacrymira-nav');
+        if (!nav) return;
+        const ul = nav.querySelector('ul');
+        if (!ul) return;
+        // 清除先前設定的 margin
+        ul.style.marginLeft = '';
+        ul.style.marginRight = '';
+        nav.style.overflowX = 'auto';
+        const contentWidth = ul.scrollWidth;
+        const navRect = nav.getBoundingClientRect();
+        // 如果導航內容寬度小於視窗寬度，則居中顯示
+        if (contentWidth < window.innerWidth) {
+          const computedMargin = window.innerWidth / 2 - navRect.left - contentWidth / 2;
+          if (computedMargin > 0) {
+            ul.style.marginLeft = computedMargin + 'px';
+            nav.style.overflowX = 'hidden';
           }
         }
-      });
-    });
-    
-    window.addEventListener('load', updateHighlightBar);
-    window.addEventListener('resize', updateHighlightBar);
-    
-    function updateBlueSlider() {
-      const activeItem = document.querySelector('.lacrymira-nav-item.active');
-      const blueSlider = document.querySelector('.blue-slider');
-      const navContainer = document.querySelector('.lacrymira-nav-container');
-      if (activeItem && blueSlider && navContainer) {
-        const itemRect = activeItem.getBoundingClientRect();
-        const containerRect = navContainer.getBoundingClientRect();
-        const extra = 8;
-        const left = itemRect.left - containerRect.left - extra/2;
-        const width = itemRect.width + extra;
-        blueSlider.style.left = left + 'px';
-        blueSlider.style.width = width + 'px';
+        // 調整左右箭頭的顯示
+        adjustArrows();
       }
-    }
-    
-    window.addEventListener('load', updateBlueSlider);
-    window.addEventListener('resize', updateBlueSlider);
-    
-    function centerActivePage() {
-      const container = document.querySelector('.lacrymira-nav');
-      const activeItem = container.querySelector('.lacrymira-nav-item.active');
-      if (!activeItem) return;
-      const containerCenter = container.clientWidth / 2;
-      const activeCenter = activeItem.offsetLeft + activeItem.offsetWidth / 2;
-      const desiredScrollLeft = activeCenter - containerCenter;
-      container.scrollTo({ left: desiredScrollLeft, behavior: 'smooth' });
-    }
-    
-    let currentButton = null;
-    let highlightTransitioning = false;
-    let queuedBtn = null;
-    
-    window.addEventListener('load', () => {
-      const highlight = document.querySelector('.lacrymira-highlight');
-      if (highlight) {
-        highlight.addEventListener('transitionstart', () => { highlightTransitioning = true; });
-        highlight.addEventListener('transitionend', () => {
-          highlightTransitioning = false;
-          if (queuedBtn) { queuedBtn.click(); queuedBtn = null; }
-        });
-        setInterval(() => { if (highlightTransitioning) { highlightTransitioning = false; if (queuedBtn) { queuedBtn.click(); queuedBtn = null; } } }, 400);
-      }
-    });
-    
-    document.querySelectorAll('.lacrymira-editor button').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.lacrymira-editor button').forEach(b => b.classList.remove('selected'));
-        this.classList.add('selected');
-        if (highlightTransitioning) {
-          queuedBtn = this;
-          setTimeout(() => { if (!highlightTransitioning && queuedBtn) { queuedBtn.click(); queuedBtn = null; } }, 350);
-          return;
-        }
-        currentButton = this;
-        moveSliderTo(this);
-        updateContentDisplay(this);
-      });
-      btn.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
-    });
-    
-    document.querySelector('.lacrymira-pages').addEventListener('scroll', function(){
-      if (currentButton) moveSliderTo(currentButton);
-    });
-    
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const firstBtn = document.querySelector('.lacrymira-pages button');
-        if (firstBtn) {
-          currentButton = firstBtn;
-          moveSliderTo(firstBtn);
-          updateContentDisplay(firstBtn);
-        }
-      }, 200);
-    });
-    
-    function moveSliderTo(btn) {
-      const editorElem = document.querySelector('.lacrymira-editor');
-      const slider = document.querySelector('.lacrymira-slider');
-      const editorRect = editorElem.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-      const left = btnRect.left - editorRect.left;
-      const width = btnRect.width;
-      slider.style.left = left + 'px';
-      slider.style.width = width + 'px';
-    }
-    
-    function updateContentDisplay(btn) {
-      const contentArea = document.getElementById('content-display');
-      if (!contentArea) return;
-      let btnText = btn.innerText.trim();
-      let content = "";
-      switch(btnText) {
-        case "歡迎光臨~":
-          content = "歡迎來到 Lacrymira！這裡是淺風自己建立的網站";
-          break;
-        case "w":
-          content = "這是按鈕「w」所對應的內容。";
-          break;
-        case "w?":
-          content = "這是按鈕「w?」所對應的內容。";
-          break;
-        case "w!":
-          content = "這是按鈕「w!」所對應的內容。";
-          break;
-        case "網站構建中":
-          content = "網站正在建構中";
-          break;
-        default:
-          content = "你點擊了按鈕：" + btnText;
-          break;
-      }
-      contentArea.innerHTML = "<p>" + content + "</p>";
-    }
-    
-    function adjustNav() {
-      const nav = document.querySelector('.lacrymira-nav');
-      if (!nav) return;
-      const ul = nav.querySelector('ul');
-      if (!ul) return;
-      ul.style.marginLeft = '';
-      ul.style.marginRight = '';
-      nav.style.overflowX = 'auto';
-      const contentWidth = ul.scrollWidth;
-      const navRect = nav.getBoundingClientRect();
-      if (contentWidth < window.innerWidth) {
-        const computedMargin = window.innerWidth / 2 - navRect.left - contentWidth / 2;
-        if (computedMargin > 0) {
-          ul.style.marginLeft = computedMargin + 'px';
-          nav.style.overflowX = 'hidden';
+
+      /**
+       * 根據當前滾動位置調整左右箭頭的透明度
+       */
+      function adjustArrows() {
+        const nav = document.querySelector('.lacrymira-nav');
+        const leftArrow = document.querySelector('.lacrymira-arrow-left');
+        const rightArrow = document.querySelector('.lacrymira-arrow-right');
+        if (!nav || !leftArrow || !rightArrow) return;
+        const scrollLeft = nav.scrollLeft;
+        const maxScrollLeft = nav.scrollWidth - nav.clientWidth;
+        // 如果沒有滾動空間，則隱藏左右箭頭
+        if (maxScrollLeft <= 0) {
+          leftArrow.style.opacity = 0;
+          rightArrow.style.opacity = 0;
+        } else {
+          // 左箭頭：在最左側時隱藏；右箭頭：在最右側時隱藏
+          leftArrow.style.opacity = scrollLeft <= 0 ? 0 : 1;
+          rightArrow.style.opacity = scrollLeft >= maxScrollLeft ? 0 : 1;
         }
       }
-      adjustArrows();
-    }
-    
-    function adjustArrows() {
-      const nav = document.querySelector('.lacrymira-nav');
-      const leftArrow = document.querySelector('.lacrymira-arrow-left');
-      const rightArrow = document.querySelector('.lacrymira-arrow-right');
-      if (!nav || !leftArrow || !rightArrow) return;
-      const scrollLeft = nav.scrollLeft;
-      const maxScrollLeft = nav.scrollWidth - nav.clientWidth;
-      if (maxScrollLeft <= 0) {
-        leftArrow.style.opacity = 0;
-        rightArrow.style.opacity = 0;
-      } else {
-        leftArrow.style.opacity = scrollLeft <= 0 ? 0 : 1;
-        rightArrow.style.opacity = scrollLeft >= maxScrollLeft ? 0 : 1;
-      }
-    }
-    
-    document.querySelector('.lacrymira-nav').addEventListener('scroll', adjustArrows);
-    window.addEventListener('load', () => { setTimeout(adjustNav, 100); });
-    window.addEventListener('resize', () => { setTimeout(adjustNav, 100); });
-  </script>
-</body>
+
+      // 當導航欄滾動時，調用 adjustArrows 更新箭頭狀態
+      document.querySelector('.lacrymira-nav').addEventListener('scroll', adjustArrows);
+      // 網頁加載與尺寸變化後調整導航
+      window.addEventListener('load', () => { setTimeout(adjustNav, 100); });
+      window.addEventListener('resize', () => { setTimeout(adjustNav, 100); });
+    </script>
+  </body>
 </html>
