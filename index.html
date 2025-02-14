@@ -8,52 +8,336 @@
     <!-- 設定網頁標題 -->
     <title>Lacrymira.com</title>
     <!-- 網頁內嵌 CSS 樣式 -->
-    <style>  scroll-snap-align: start;
-}
+    <style>
+      /* 定義全局CSS變數，方便統一管理設計風格 */
+      :root {
+        --header-height: 40px;             /* 頂部導航欄的高度 */
+        --transition-speed: 0.25s;          /* 各種動畫的過渡時間 */
+        --primary-color: #D8BFD8;           /* 主色調，淡紫色 */
+        --bg-color: rgba(248,248,248,0.98);  /* 背景色，接近白色帶點透明 */
+      }
 
-/* 編輯器區按鈕樣式 */
-.lacrymira-editor button {
-  background: none;
-  border: none;
-  padding: 0px 15px;
-  font-size: 12px;
-  height: 25px;
-  color: #404040;
-  cursor: pointer;
-  position: relative;
-  line-height: 25px;
-  z-index: 4;
-  -webkit-tap-highlight-color: transparent;
-  transition: color var(--transition-speed) ease;
-}
-.lacrymira-editor button:hover,
-.lacrymira-editor button:focus {
-  color: #5D4037;
-}
-.lacrymira-editor button:active,
-.lacrymira-editor button.selected {
-  color: #5D4037;
-}
+      /* 隱藏所有元素的 Webkit 滾動條（Chrome、Safari等） */
+      *::-webkit-scrollbar {
+        display: none;
+      }
+      /* Firefox 隱藏滾動條並移除 outline */
+      * {
+        scrollbar-width: none;
+        outline: none;
+      }
 
-/* 遮罩層：用於遮住滾動區域未顯示部分 */
-.lacrymira-mask {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  background-color: var(--bg-color);
-  z-index: 6;
-  transition: width var(--transition-speed) ease;
-}
-.lacrymira-mask-left { left: 0; }
-.lacrymira-mask-right { right: 1px; }
+      /* body 基本樣式設定 */
+      body {
+        margin: 0;
+        padding: 0;
+        padding-top: var(--header-height); /* 預留空間給固定頂部導航欄 */
+        background: #fff;
+        /* 使用系統字體及通用字體列表，確保跨平台字體一致性 */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
 
-/* 內容展示區：展示按鈕點擊後的內容 */
-#content-display {
-  margin-top: 70px;
-  padding: 20px;
-  background: #fff;
-  min-height: calc(100vh - 70px);
-}
+      /* 頂部導航欄樣式 */
+      .lacrymira-header {
+        position: fixed;       /* 固定定位，始終顯示在頁面頂部 */
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;           /* 層級設置，確保覆蓋其他內容 */
+        display: flex;         /* 使用flex佈局，便於水平排列子元素 */
+        align-items: center;   /* 垂直置中 */
+        padding: 5px 16px;     /* 內邊距 */
+        height: var(--header-height); /* 使用變數設定高度 */
+        background: var(--bg-color);   /* 使用背景色變數 */
+        border-bottom: 0.5px solid rgba(0,0,0,0.15); /* 底部邊框作為分隔線 */
+      }
+
+      /* 頂部導航欄左側區塊：包含Logo和文字 */
+      .lacrymira-header-left {
+        display: flex;
+        align-items: center;
+        flex-shrink: 1; /* 允許收縮 */
+        overflow: hidden; /* 溢出部分隱藏 */
+      }
+
+      /* Logo圖片樣式 */
+      .lacrymira-header img {
+        width: 35px;
+        height: 35px;
+        margin-right: 8px; /* 右側間距 */
+        border: 2px solid #ddd;
+        box-shadow: 0 0 4px rgba(0,0,0,0.1);
+        border-radius: 50%; /* 圓形圖片 */
+        flex-shrink: 0;   /* 防止縮小 */
+      }
+
+      /* 頭部文字區塊，包含標題和副標題 */
+      .lacrymira-header-text {
+        display: flex;
+        flex-direction: column; /* 垂直排列 */
+        min-width: 0;
+        overflow: hidden;       /* 超出部分隱藏 */
+      }
+
+      /* 標題區塊：標題與標題前綴 */
+      .lacrymira-header-title {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+      }
+      .lacrymira-header-title-prefix,
+      .lacrymira-header-title-main {
+        font-size: 15px;
+        font-weight: 700;
+        color: #000;
+        line-height: 17px;
+        white-space: nowrap;  /* 防止文字換行 */
+      }
+      /* 主標題：允許伸縮並使用省略號處理超出部分 */
+      .lacrymira-header-title-main {
+        flex-grow: 1;
+        flex-shrink: 1;
+        min-width: 0px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+				min-width: 50px;
+      }
+
+      /* 副標題區塊樣式 */
+      .lacrymira-header-subtitle {
+        display: flex;
+        align-items: center;
+        min-width: 0px;
+      }
+      .lacrymira-header-subtitle-prefix,
+      .lacrymira-header-subtitle-main {
+        font-size: 12px;
+        color: #666;
+        line-height: 13px;
+        white-space: nowrap;
+      }
+
+      /* 左右箭頭按鈕樣式 */
+      .lacrymira-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 15px;
+        cursor: pointer;                /* 鼠標懸停顯示點擊效果 */
+        user-select: none;              /* 禁止文字選取 */
+        margin: 0 2px;
+        font-size: 20px;
+        color: var(--primary-color);
+        transition: opacity var(--transition-speed) ease; /* 透明度過渡動畫 */
+        opacity: 1;
+        margin-bottom: -16px;           /* 微調位置 */
+      }
+      /* 分別調整左右箭頭的左右邊距 */
+      .lacrymira-arrow-left { margin-right: 0; }
+      .lacrymira-arrow-right { margin-left: 0; }
+
+      /* 導航欄：包含多頁導航按鈕 */
+      .lacrymira-nav {
+        position: relative;
+        overflow-x: auto;    /* 支援橫向滾動 */
+        overflow-y: hidden;  /* 垂直溢出隱藏 */
+        touch-action: pan-x; /* 優化觸控操作 */
+        white-space: nowrap; /* 防止換行 */
+        flex-grow: 1;
+        flex-shrink: 8;
+        min-width: 60px;
+        font-weight: 700;
+        background: none;
+        padding: 0;
+        margin-bottom: -18px; /* 與箭頭對齊 */
+        z-index: 20;         /* 層級高於header其他部分 */
+      }
+      /* 導航容器：包裹<ul>列表，便於定位藍色滑動條 */
+      .lacrymira-nav-container {
+        position: relative;
+        display: inline-block;
+      }
+      /* <ul>列表樣式：使用flex排列導航項 */
+      .lacrymira-nav ul {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        list-style: none;    /* 移除列表標記 */
+        transition: margin 0.25s ease; /* 過渡動畫 */
+      }
+      /* 單個導航項目樣式 */
+      .lacrymira-nav-item {
+        margin: 0 10px;
+        padding: 0;
+        font-size: 13.5px;
+        color: #404040;
+        cursor: pointer;
+        margin-bottom: 4px;
+        transition: color var(--transition-speed) ease;
+        position: relative;
+        user-select: none; /* 禁止文字選取 */
+        -webkit-tap-highlight-color: transparent; /* 觸控高亮透明 */
+      }
+      /* 滑鼠懸停、焦點與active狀態時的顏色變化 */
+      .lacrymira-nav-item.active,
+      .lacrymira-nav-item:hover,
+      .lacrymira-nav-item:focus {
+        color: #404040;
+      }
+      /* 藍色滑動條：導航下方顯示當前選中項目 */
+      .blue-slider {
+        position: absolute;
+        bottom: -3px;
+        height: 6.5px;
+        background: var(--primary-color);
+        transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+        z-index: 21; /* 高於導航項 */
+      }
+
+      /* 頂部按鈕樣式（例如“@”按鈕） */
+      .lacrymira-header-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 6px 15.5px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        height: 20px;
+        line-height: 16px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+        margin-left: 18px;
+        transition: background-color var(--transition-speed) ease;
+      }
+      /* 按鈕懸停和聚焦時改變背景色 */
+      .lacrymira-header-btn:hover,
+      .lacrymira-header-btn:focus {
+        background-color: #c0a9c0;
+      }
+
+      /* lacrymira-editor：下方的按鈕編輯器區塊 */
+      .lacrymira-editor {
+        position: fixed;
+        top: var(--header-height); /* 緊貼導航欄下方 */
+        left: 0;
+        right: 0;
+        height: 35px;
+        background: var(--bg-color);
+        border-bottom: 0.5px solid rgba(0,0,0,0.15);
+        backdrop-filter: blur(10px); /* 模糊背景效果 */
+        overflow: hidden;
+        transform: translateY(-100%); /* 初始隱藏編輯器區 */
+        transition: transform 0.2s ease-out;
+        z-index: 5;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      /* 當編輯器開啟時，顯示編輯器 */
+      .lacrymira-editor.open {
+        transform: translateY(0);
+      }
+
+      /* 高亮背景：用於按鈕區域高亮顯示 */
+      .lacrymira-highlight {
+        position: absolute;
+        top: 22px;
+        left: 0;
+        height: 20px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        border-radius: 16px;
+        box-sizing: border-box;
+        transform: translateY(-50%);
+        z-index: 0;
+        transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+      }
+      /* 按鈕下方滑動條：顯示選中狀態 */
+      .lacrymira-slider {
+        position: absolute;
+        top: 22px;
+        left: 0;
+        height: 20px;
+        background-color: var(--primary-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        border-radius: 16px;
+        box-sizing: border-box;
+        transform: translateY(-50%);
+        z-index: 0.5;
+        transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+      }
+
+      /* lacrymira-pages：存放不同頁面按鈕的容器 */
+      .lacrymira-pages {
+        display: flex;
+        overflow-x: auto; /* 支援橫向滾動 */
+        scroll-snap-type: x mandatory; /* 滾動吸附效果 */
+        -webkit-overflow-scrolling: touch; /* 提升iOS觸控體驗 */
+        position: relative;
+        white-space: nowrap; /* 防止子元素換行 */
+        top: 9px; /* 垂直偏移調整 */
+      }
+      /* 隱藏滾動條（Webkit瀏覽器） */
+      .lacrymira-pages::-webkit-scrollbar {
+        display: none;
+      }
+      /* 每一個頁面按鈕區塊 */
+      .lacrymira-page {
+        flex: none;
+        width: 100vw; /* 每個頁面占滿整個視窗寬度 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start; /* 吸附到頁面開始位置 */
+      }
+
+      /* lacrymira-editor 中按鈕樣式 */
+      .lacrymira-editor button {
+        background: none;
+        border: none;
+        padding: 0px 15px;
+        font-size: 12px;
+        height: 25px;
+        color: #404040;
+        cursor: pointer;
+        position: relative;
+        line-height: 25px;
+        z-index: 4;
+        -webkit-tap-highlight-color: transparent;
+        transition: color var(--transition-speed) ease;
+      }
+      /* 按鈕懸停、聚焦和按下狀態的顏色變化 */
+      .lacrymira-editor button:hover,
+      .lacrymira-editor button:focus {
+        color: #5D4037;
+      }
+      .lacrymira-editor button:active,
+      .lacrymira-editor button.selected {
+        color: #5D4037;
+      }
+
+      /* 遮罩層：用於遮住滾動時未顯示完全的部分 */
+      .lacrymira-mask {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        background-color: var(--bg-color);
+        z-index: 6;
+        transition: width var(--transition-speed) ease;
+      }
+      /* 左側遮罩 */
+      .lacrymira-mask-left { left: 0; }
+      /* 右側遮罩 */
+      .lacrymira-mask-right { right: 1px; }
+
+      /* 內容展示區：頁面下方用於展示按鈕點擊後對應內容 */
+      #content-display {
+        margin-top: 70px;
+        padding: 20px;
+        background: #fff;
+        min-height: calc(100vh - 70px); /* 確保至少填滿剩餘高度 */
+      }
     </style>
   </head>
   <body>
