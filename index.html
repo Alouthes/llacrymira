@@ -224,7 +224,7 @@
         top: var(--header-height); /* 緊貼導航欄下方 */
         left: 0;
         right: 0;
-        height: 35px;
+        height: 39px;
         background: var(--bg-color);
         border-bottom: 0.5px solid rgba(0,0,0,0.15);
         backdrop-filter: blur(10px); /* 模糊背景效果 */
@@ -242,7 +242,7 @@
       /* 高亮背景：用於按鈕區域高亮顯示 */
       .lacrymira-highlight {
         position: absolute;
-        top: 22px;
+        top: 25px;
         left: 0;
         height: 20px;
         background-color: white;
@@ -256,7 +256,7 @@
       /* 按鈕下方滑動條：顯示選中狀態 */
       .lacrymira-slider {
         position: absolute;
-        top: 22px;
+        top: 25px;
         left: 0;
         height: 20px;
         background-color: var(--primary-color);
@@ -276,7 +276,7 @@
         -webkit-overflow-scrolling: touch; /* 提升iOS觸控體驗 */
         position: relative;
         white-space: nowrap; /* 防止子元素換行 */
-        top: 9px; /* 垂直偏移調整 */
+        top: 12px; /* 垂直偏移調整 */
       }
       /* 隱藏滾動條（Webkit瀏覽器） */
       .lacrymira-pages::-webkit-scrollbar {
@@ -299,7 +299,7 @@
         padding: 0px 15px;
         font-size: 12px;
         height: 25px;
-        color: #404040;
+        color: #000;
         cursor: pointer;
         position: relative;
         line-height: 25px;
@@ -310,11 +310,11 @@
       /* 按鈕懸停、聚焦和按下狀態的顏色變化 */
       .lacrymira-editor button:hover,
       .lacrymira-editor button:focus {
-        color: #5D4037;
+        color: #fff;
       }
       .lacrymira-editor button:active,
       .lacrymira-editor button.selected {
-        color: #5D4037;
+        color: #fff;
       }
 
       /* 遮罩層：用於遮住滾動時未顯示完全的部分 */
