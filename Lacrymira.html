@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lacrymira.com</title>
+  <style>
+    :root {
+      --header-height: 35px;
+      --transition-speed: 0.25s;
+      --primary-color: #D8BFD8;
+      --bg-color: rgba(248,248,248,0.98);
+    }
+    *::-webkit-scrollbar { display: none; }
+    * { scrollbar-width: none; outline: none; }
+    body {
+      margin: 0;
+      padding: 0;
+      padding-top: var(--header-height);
+      background: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .lacrymira-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      padding: 4px 12px;
+      height: var(--header-height);
+      background: var(--bg-color);
+      border-bottom: 0.5px solid rgba(0,0,0,0.15);
+    }
+    .lacrymira-header-left {
+      display: flex;
+      align-items: center;
+      flex-shrink: 1;
+      overflow: hidden;
+    }
+    .lacrymira-header img {
+      width: 30px;
+      height: 30px;
+      margin-right: 8px;
+      border: 2px solid #ddd;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .lacrymira-header-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .lacrymira-header-title {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+    .lacrymira-header-title-prefix,
+    .lacrymira-header-title-main {
+      font-size: 13px;
+      font-weight: 700;
+      color: #222;
+      line-height: 15px;
+      white-space: nowrap;
+    }
+    .lacrymira-header-title-main {
+      flex-grow: 1;
+      flex-shrink: 1;
+      min-width: 24px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lacrymira-header-subtitle {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+    .lacrymira-header-subtitle-prefix,
+    .lacrymira-header-subtitle-main {
+      font-size: 11px;
+      color: #666;
+      line-height: 13px;
+      white-space: nowrap;
+    }
+    .lacrymira-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      cursor: pointer;
+      user-select: none;
+      margin: 0 2px;
+      font-size: 16px;
+      color: var(--primary-color);
+      transition: opacity var(--transition-speed) ease;
+      opacity: 1;
+      margin-bottom: -11px;
+    }
+    .lacrymira-arrow-left { margin-right: 0; }
+    .lacrymira-arrow-right { margin-left: 0; }
+    .lacrymira-nav {
+      position: relative;
+      overflow-x: auto;
+      overflow-y: hidden;
+      touch-action: pan-x;
+      white-space: nowrap;
+      flex-grow: 1;
+      flex-shrink: 8;
+      min-width: 60px;
+      font-weight: 700;
+      background: none;
+      padding: 0;
+      margin-bottom: -11px;
+      z-index: 20;
+    }
+    .lacrymira-nav-container {
+      position: relative;
+      display: inline-block;
+    }
+    .lacrymira-nav ul {
+      display: flex;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      transition: margin 0.25s ease;
+    }
+    .lacrymira-nav-item {
+      margin: 0 10px;
+      padding: 0;
+      font-size: 12px;
+      color: #404040;
+      cursor: pointer;
+      margin-bottom: 4.5px;
+      transition: color var(--transition-speed) ease;
+      position: relative;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lacrymira-nav-item.active,
+    .lacrymira-nav-item:hover,
+    .lacrymira-nav-item:focus {
+      color: #404040;
+    }
+    .blue-slider {
+      position: absolute;
+      bottom: -3px;
+      height: 6px;
+      background: var(--primary-color);
+      transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+      z-index: 21;
+    }
+    .lacrymira-header-btn {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 4px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: bold;
+      height: 20px;
+      line-height: 16px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      margin-left: 12px;
+      transition: background-color var(--transition-speed) ease;
+    }
+    .lacrymira-header-btn:hover,
+    .lacrymira-header-btn:focus {
+      background-color: #c0a9c0;
+    }
+    .lacrymira-editor {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      height: 35px;
+      background: var(--bg-color);
+      border-bottom: 0.5px solid rgba(0,0,0,0.15);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      transform: translateY(-100%);
+      transition: transform 0.2s ease-out;
+      z-index: 5;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .lacrymira-editor.open {
+      transform: translateY(0);
+    }
+    .lacrymira-highlight {
+      position: absolute;
+      top: 22px;
+      left: 0;
+      height: 20px;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border-radius: 16px;
+      box-sizing: border-box;
+      transform: translateY(-50%);
+      z-index: 0;
+      transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+    }
+    .lacrymira-slider {
+      position: absolute;
+      top: 22px;
+      left: 0;
+      height: 20px;
+      background-color: var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border-radius: 16px;
+      box-sizing: border-box;
+      transform: translateY(-50%);
+      z-index: 0.5;
+      transition: left var(--transition-speed) ease, width var(--transition-speed) ease;
+    }
+    .lacrymira-pages {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+      white-space: nowrap;
+      top: 9px;
+    }
+    .lacrymira-pages::-webkit-scrollbar { display: none; }
+    .lacrymira-page {
+      flex: none;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      scroll-snap-align: start;
+    }
+    .lacrymira-editor button {
+      background: none;
+      border: none;
+      padding: 0px 15px;
+      font-size: 12px;
+      height: 25px;
+      color: #404040;
+      cursor: pointer;
+      position: relative;
+      line-height: 25px;
+      z-index: 4;
+      -webkit-tap-highlight-color: transparent;
+      transition: color var(--transition-speed) ease;
+    }
+    .lacrymira-editor button:hover,
+    .lacrymira-editor button:focus {
+      color: #5D4037;
+    }
+    .lacrymira-editor button:active,
+    .lacrymira-editor button.selected {
+      color: #5D4037;
+    }
+    .lacrymira-mask {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background-color: var(--bg-color);
+      z-index: 6;
+      transition: width var(--transition-speed) ease;
+    }
+    .lacrymira-mask-left { left: 0; }
+    .lacrymira-mask-right { right: 1px; }
+    #content-display {
+      margin-top: 70px;
+      padding: 20px;
+      background: #fff;
+      min-height: calc(100vh - 70px);
+    }
+  </style>
+</head>
+<body>
+  <div class="lacrymira-header">
+    <div class="lacrymira-header-left">
+      <img src="https://res.cloudinary.com/dfpnqmy7d/image/upload/f_auto,q_auto/jlvni3dcsnvopqn00nxo" alt="Logo">
+      <div class="lacrymira-header-text">
+        <div class="lacrymira-header-title">
+          <span class="lacrymira-header-title-prefix">淺風 –&nbsp</span>
+          <span class="lacrymira-header-title-main">吃枕頭中</span>
+        </div>
+        <div class="lacrymira-header-subtitle">
+          <span class="lacrymira-header-subtitle-prefix">Lacrymira</span>
+          <span class="lacrymira-header-subtitle-main"></span>
+        </div>
+      </div>
+    </div>
+    <div class="lacrymira-arrow lacrymira-arrow-left"><span>◀</span></div>
+    <div class="lacrymira-nav">
+      <div class="lacrymira-nav-container">
+        <ul>
+          <li class="lacrymira-nav-item" data-page="1" tabindex="0">第一頁</li>
+          <li class="lacrymira-nav-item" data-page="2" tabindex="0">第二頁</li>
+          <li class="lacrymira-nav-item" data-page="3" tabindex="0">第三頁</li>
+        </ul>
+        <div class="blue-slider"></div>
+      </div>
+    </div>
+    <div class="lacrymira-arrow lacrymira-arrow-right"><span>▶</span></div>
+    <a href="#" class="lacrymira-header-btn"> @ </a>
+  </div>
+  <div class="lacrymira-editor">
+    <div class="lacrymira-highlight"></div>
+    <div class="lacrymira-slider"></div>
+    <div class="lacrymira-pages">
+      <div class="lacrymira-page" data-page="1">
+        <button tabindex="0">歡迎光臨~</button>
+        <button tabindex="0">w</button>
+        <button tabindex="0">w</button>
+        <button tabindex="0">w</button>
+      </div>
+      <div class="lacrymira-page" data-page="2">
+        <button tabindex="0">w?</button>
+        <button tabindex="0">w</button>
+        <button tabindex="0">w</button>
+        <button tabindex="0">w!</button>
+      </div>
+      <div class="lacrymira-page" data-page="3">
+        <button tabindex="0">w</button>
+        <button tabindex="0">網站構建中</button>
+        <button tabindex="0">w</button>
+      </div>
+    </div>
+    <div class="lacrymira-mask lacrymira-mask-left"></div>
+    <div class="lacrymira-mask lacrymira-mask-right"></div>
+  </div>
+  <div id="content-display">
+  </div>
+  <script>
+    const pages = document.querySelector('.lacrymira-pages');
+    const maskLeft = document.querySelector('.lacrymira-mask-left');
+    const maskRight = document.querySelector('.lacrymira-mask-right');
+    const editor = document.querySelector('.lacrymira-editor');
+    let activePage = null;
+    let clickScrolling = false;
+    let centerTimeout;
+    
+    function updateHighlightBar() {
+      const scrollLeft = pages.scrollLeft;
+      const pageWidth = pages.clientWidth;
+      const pagesArray = document.querySelectorAll('.lacrymira-page');
+      const totalPages = pagesArray.length;
+      const currentPageIndex = Math.floor(scrollLeft / pageWidth);
+      const nextPageIndex = Math.min(currentPageIndex + 1, totalPages - 1);
+      const currentPage = pagesArray[currentPageIndex];
+      const nextPage = pagesArray[nextPageIndex];
+      if (currentPage && nextPage) {
+        const currentButtons = currentPage.querySelectorAll('button');
+        const nextButtons = nextPage.querySelectorAll('button');
+        let totalCurrentWidth = 0;
+        currentButtons.forEach(button => { totalCurrentWidth += button.getBoundingClientRect().width; });
+        let totalNextWidth = 0;
+        nextButtons.forEach(button => { totalNextWidth += button.getBoundingClientRect().width; });
+        const interpolation = (scrollLeft % pageWidth) / pageWidth;
+        const interpolatedWidth = totalCurrentWidth + (totalNextWidth - totalCurrentWidth) * interpolation;
+        document.querySelector('.lacrymira-highlight').style.width = `${interpolatedWidth}px`;
+        const firstCurrentButton = currentButtons[0];
+        const firstNextButton = nextButtons[0];
+        const pagesRect = pages.getBoundingClientRect();
+        const currentButtonLeft = firstCurrentButton.getBoundingClientRect().left - pagesRect.left;
+        const nextButtonLeft = firstNextButton.getBoundingClientRect().left - pagesRect.left;
+        const interpolatedLeft = currentButtonLeft + (nextButtonLeft - currentButtonLeft) * interpolation;
+        document.querySelector('.lacrymira-highlight').style.left = `${interpolatedLeft}px`;
+        const containerWidth = editor.clientWidth;
+        const leftMaskWidth = interpolatedLeft;
+        const rightMaskWidth = Math.max(0, containerWidth - (interpolatedLeft + interpolatedWidth));
+        maskLeft.style.width = `${leftMaskWidth}px`;
+        maskRight.style.width = `${rightMaskWidth}px`;
+      }
+    }
+    
+    const navItems = document.querySelectorAll('.lacrymira-nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const page = this.getAttribute('data-page');
+        clickScrolling = true;
+        if (!editor.classList.contains('open')) {
+          editor.classList.add('open');
+          activePage = page;
+          updateActiveNav();
+          scrollToPage(page);
+        } else {
+          if (activePage === page) {
+            editor.classList.remove('open');
+            activePage = null;
+            updateActiveNav();
+          } else {
+            activePage = page;
+            updateActiveNav();
+            scrollToPage(page);
+          }
+        }
+        setTimeout(() => { clickScrolling = false; }, 1000);
+        setTimeout(updateHighlightBar, 700);
+      });
+      item.addEventListener('keydown', e => { if (e.key === 'Enter') item.click(); });
+    });
+    
+    function updateActiveNav() {
+      navItems.forEach(item => {
+        if (item.getAttribute('data-page') === activePage) { 
+          item.classList.add('active'); 
+        } else { 
+          item.classList.remove('active'); 
+        }
+      });
+      if (clickScrolling) { setTimeout(updateBlueSlider, 300); }
+      else { updateBlueSlider(); }
+    }
+    
+    function scrollToPage(page) {
+      const pageIndex = parseInt(page, 10) - 1;
+      const pageWidth = pages.clientWidth;
+      pages.scrollTo({ left: pageIndex * pageWidth, behavior: 'smooth' });
+    }
+    
+    function updateActivePageOnScroll() {
+      const scrollLeft = pages.scrollLeft;
+      const pageWidth = pages.clientWidth;
+      const currentIndex = Math.floor((scrollLeft + pageWidth/2) / pageWidth);
+      activePage = (currentIndex + 1).toString();
+      updateActiveNav();
+    }
+    
+    pages.addEventListener('scroll', () => {
+      requestAnimationFrame(() => {
+        updateHighlightBar();
+        if (editor.classList.contains('open')) {
+          updateActivePageOnScroll();
+          if (!clickScrolling) {
+            clearTimeout(centerTimeout);
+            centerTimeout = setTimeout(centerActivePage, 100);
+          }
+        }
+      });
+    });
+    
+    window.addEventListener('load', updateHighlightBar);
+    window.addEventListener('resize', updateHighlightBar);
+    
+    function updateBlueSlider() {
+      const activeItem = document.querySelector('.lacrymira-nav-item.active');
+      const blueSlider = document.querySelector('.blue-slider');
+      const navContainer = document.querySelector('.lacrymira-nav-container');
+      if (activeItem && blueSlider && navContainer) {
+        const itemRect = activeItem.getBoundingClientRect();
+        const containerRect = navContainer.getBoundingClientRect();
+        const extra = 8;
+        const left = itemRect.left - containerRect.left - extra/2;
+        const width = itemRect.width + extra;
+        blueSlider.style.left = left + 'px';
+        blueSlider.style.width = width + 'px';
+      }
+    }
+    
+    window.addEventListener('load', updateBlueSlider);
+    window.addEventListener('resize', updateBlueSlider);
+    
+    function centerActivePage() {
+      const container = document.querySelector('.lacrymira-nav');
+      const activeItem = container.querySelector('.lacrymira-nav-item.active');
+      if (!activeItem) return;
+      const containerCenter = container.clientWidth / 2;
+      const activeCenter = activeItem.offsetLeft + activeItem.offsetWidth / 2;
+      const desiredScrollLeft = activeCenter - containerCenter;
+      container.scrollTo({ left: desiredScrollLeft, behavior: 'smooth' });
+    }
+    
+    let currentButton = null;
+    let highlightTransitioning = false;
+    let queuedBtn = null;
+    
+    window.addEventListener('load', () => {
+      const highlight = document.querySelector('.lacrymira-highlight');
+      if (highlight) {
+        highlight.addEventListener('transitionstart', () => { highlightTransitioning = true; });
+        highlight.addEventListener('transitionend', () => {
+          highlightTransitioning = false;
+          if (queuedBtn) { queuedBtn.click(); queuedBtn = null; }
+        });
+        setInterval(() => { if (highlightTransitioning) { highlightTransitioning = false; if (queuedBtn) { queuedBtn.click(); queuedBtn = null; } } }, 400);
+      }
+    });
+    
+    document.querySelectorAll('.lacrymira-editor button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.lacrymira-editor button').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        if (highlightTransitioning) {
+          queuedBtn = this;
+          setTimeout(() => { if (!highlightTransitioning && queuedBtn) { queuedBtn.click(); queuedBtn = null; } }, 350);
+          return;
+        }
+        currentButton = this;
+        moveSliderTo(this);
+        updateContentDisplay(this);
+      });
+      btn.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+    });
+    
+    document.querySelector('.lacrymira-pages').addEventListener('scroll', function(){
+      if (currentButton) moveSliderTo(currentButton);
+    });
+    
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const firstBtn = document.querySelector('.lacrymira-pages button');
+        if (firstBtn) {
+          currentButton = firstBtn;
+          moveSliderTo(firstBtn);
+          updateContentDisplay(firstBtn);
+        }
+      }, 200);
+    });
+    
+    function moveSliderTo(btn) {
+      const editorElem = document.querySelector('.lacrymira-editor');
+      const slider = document.querySelector('.lacrymira-slider');
+      const editorRect = editorElem.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const left = btnRect.left - editorRect.left;
+      const width = btnRect.width;
+      slider.style.left = left + 'px';
+      slider.style.width = width + 'px';
+    }
+    
+    function updateContentDisplay(btn) {
+      const contentArea = document.getElementById('content-display');
+      if (!contentArea) return;
+      let btnText = btn.innerText.trim();
+      let content = "";
+      switch(btnText) {
+        case "歡迎光臨~":
+          content = "歡迎來到 Lacrymira！這裡是淺風自己建立的網站";
+          break;
+        case "w":
+          content = "這是按鈕「w」所對應的內容。";
+          break;
+        case "w?":
+          content = "這是按鈕「w?」所對應的內容。";
+          break;
+        case "w!":
+          content = "這是按鈕「w!」所對應的內容。";
+          break;
+        case "網站構建中":
+          content = "網站正在建構中";
+          break;
+        default:
+          content = "你點擊了按鈕：" + btnText;
+          break;
+      }
+      contentArea.innerHTML = "<p>" + content + "</p>";
+    }
+    
+    function adjustNav() {
+      const nav = document.querySelector('.lacrymira-nav');
+      if (!nav) return;
+      const ul = nav.querySelector('ul');
+      if (!ul) return;
+      ul.style.marginLeft = '';
+      ul.style.marginRight = '';
+      nav.style.overflowX = 'auto';
+      const contentWidth = ul.scrollWidth;
+      const navRect = nav.getBoundingClientRect();
+      if (contentWidth < window.innerWidth) {
+        const computedMargin = window.innerWidth / 2 - navRect.left - contentWidth / 2;
+        if (computedMargin > 0) {
+          ul.style.marginLeft = computedMargin + 'px';
+          nav.style.overflowX = 'hidden';
+        }
+      }
+      adjustArrows();
+    }
+    
+    function adjustArrows() {
+      const nav = document.querySelector('.lacrymira-nav');
+      const leftArrow = document.querySelector('.lacrymira-arrow-left');
+      const rightArrow = document.querySelector('.lacrymira-arrow-right');
+      if (!nav || !leftArrow || !rightArrow) return;
+      const scrollLeft = nav.scrollLeft;
+      const maxScrollLeft = nav.scrollWidth - nav.clientWidth;
+      if (maxScrollLeft <= 0) {
+        leftArrow.style.opacity = 0;
+        rightArrow.style.opacity = 0;
+      } else {
+        leftArrow.style.opacity = scrollLeft <= 0 ? 0 : 1;
+        rightArrow.style.opacity = scrollLeft >= maxScrollLeft ? 0 : 1;
+      }
+    }
+    
+    document.querySelector('.lacrymira-nav').addEventListener('scroll', adjustArrows);
+    window.addEventListener('load', () => { setTimeout(adjustNav, 100); });
+    window.addEventListener('resize', () => { setTimeout(adjustNav, 100); });
+  </script>
+</body>
+</html>
